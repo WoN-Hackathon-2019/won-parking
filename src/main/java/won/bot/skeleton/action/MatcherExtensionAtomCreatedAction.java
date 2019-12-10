@@ -1,5 +1,8 @@
 package won.bot.skeleton.action;
 
+import org.apache.jena.datatypes.xsd.XSDDateTime;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.DC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import won.bot.framework.eventbot.EventListenerContext;
@@ -10,9 +13,16 @@ import won.bot.framework.extensions.matcher.MatcherExtensionAtomCreatedEvent;
 import won.bot.skeleton.context.SkeletonBotContextWrapper;
 import won.protocol.message.WonMessage;
 import won.protocol.message.builder.WonMessageBuilder;
+import org.apache.jena.query.Dataset;
+import won.protocol.model.Atom;
+import won.protocol.model.Coordinate;
+import won.protocol.util.DefaultAtomModelWrapper;
+import won.protocol.vocabulary.SCHEMA;
+import won.protocol.vocabulary.WONMATCH;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,12 +39,52 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
             logger.error("MatcherExtensionAtomCreatedAction can only handle MatcherExtensionAtomCreatedEvent and only works with SkeletonBotContextWrapper");
             return;
         }
+
         SkeletonBotContextWrapper botContextWrapper = (SkeletonBotContextWrapper) ctx.getBotContextWrapper();
         MatcherExtensionAtomCreatedEvent atomCreatedEvent = (MatcherExtensionAtomCreatedEvent) event;
 
-        Map<URI, Set<URI>> connectedSocketsMapSet = botContextWrapper.getConnectedSockets();
+        // Map<URI, Set<URI>> connectedSocketsMapSet = botContextWrapper.getConnectedSockets();
 
-        for(Map.Entry<URI, Set<URI>> entry : connectedSocketsMapSet.entrySet()) {
+        Dataset dataset = ((MatcherExtensionAtomCreatedEvent) event).getAtomData();
+        if (dataset == null) {
+            return;
+        }
+
+        DefaultAtomModelWrapper atom = new DefaultAtomModelWrapper(dataset);
+        atom.getSeeksNodes().forEach(node -> {
+            Model model = node.getModel();
+            if (model == null) {
+                return;
+            }
+            Property property = model.getProperty("https://w3id.org/won/matching#searchString");
+            if (property == null) {
+                return;
+            }
+            Statement stmt = node.getProperty(property);
+            if (stmt == null) {
+                return;
+            }
+            RDFNode rdfNode = stmt.getObject();
+            if (rdfNode == null) {
+                return;
+            }
+            String searchString = rdfNode.toString();
+            if (searchString == null || !searchString.equals("parking location")) {
+                return;
+            }
+
+            Coordinate locationCoordinate = atom.getLocationCoordinate(node);
+
+            Calendar doNotMatchAfter = atom.getDoNotMatchAfter();
+            Calendar validFrom = this.parseCalendar(node.getProperty(SCHEMA.VALID_FROM));
+            Calendar validTrough = this.parseCalendar(node.getProperty(SCHEMA.VALID_THROUGH));
+
+            logger.info("PARKING REQUEST => " + validFrom.getTime().toString() + " - " + validTrough.getTime().toString() + " @(" + locationCoordinate.getLatitude()+", " + locationCoordinate.getLongitude() + ")");
+        });
+        // Object[] seekNodes = atom.getSeeksNodes().toArray();
+        // Coordinate coordinate = atom.getLocationCoordinate((Resource)seekNodes[0]);
+
+        /* for(Map.Entry<URI, Set<URI>> entry : connectedSocketsMapSet.entrySet()) {
             URI senderSocket = entry.getKey();
             Set<URI> targetSocketsSet = entry.getValue();
             for(URI targetSocket : targetSocketsSet) {
@@ -48,6 +98,20 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
                                             .text("We registered that an Atom was created, atomUri is: " + atomCreatedEvent.getAtomURI())
                                             .build();
                 ctx.getWonMessageSender().prepareAndSendMessage(wonMessage);
+            }
+        } */
+    }
+
+    private Calendar parseCalendar(Statement prop) {
+        if (prop == null) {
+            return null;
+        } else {
+            RDFNode literal = prop.getObject();
+            if (!literal.isLiteral()) {
+                return null;
+            } else {
+                Object data = literal.asLiteral().getValue();
+                return data instanceof XSDDateTime ? ((XSDDateTime)data).asCalendar() : null;
             }
         }
     }
