@@ -1,9 +1,13 @@
-# Web of Needs Bot Skeleton
+# Web of Needs parking bot
 
-This skeleton contains a bot that creates a Service Atom that one can connect to. 
-For each atom that has been created on the configured node(s), the bot sends a message with the atomUri of the created Atom to everyone that is connected to the Service Atom.
+This bot is a pre step to build a smart city, where connected cars communicate with parking positions using 
+the Web of Needs technology.
 
-The Bot Skeleton is a [Spring Boot Application](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-running-your-application.html).
+In order to work properly it is needed to implement a client software. Until there is a connected car standard, 
+every provider can implement solutions based on there ecosystem and software stack.
+
+
+The Bot is a  [Spring Boot Application](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-running-your-application.html).
 
 ## Running the bot
 
