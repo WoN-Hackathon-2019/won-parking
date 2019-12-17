@@ -69,7 +69,7 @@ public class RDFFetcher {
         return null;
     }
 
-    public static String getParkingLotWithParams(Model payload, float myLong, float myLat) {
+    public static String getParkingLotWithParams(Model payload, float myLat, float myLong) {
       if (payload != null && !payload.isEmpty()) {
         ParameterizedSparqlString pss = new ParameterizedSparqlString();
         pss.setCommandText(getClosestParkingLotQuery);
