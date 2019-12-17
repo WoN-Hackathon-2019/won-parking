@@ -122,7 +122,7 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
             URI senderSocketURI = ppSockets.iterator().next();
 
 
-            String message = "Hello, let's connect!"; //optional welcome message
+            String message = "Hello, I have a parking location for you!"; //optional welcome message
             ConnectCommandEvent connectCommandEvent = new ConnectCommandEvent(
                     senderSocketURI,recipientSocketURI, message);
             ctx.getEventBus().publish(connectCommandEvent);
