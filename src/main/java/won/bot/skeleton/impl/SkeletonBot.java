@@ -64,8 +64,9 @@ public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAt
                             getBotContextWrapper().getBotName() + " does not work without a SkeletonBotContextWrapper");
         }
         EventBus bus = getEventBus();
-        /* ds: ParkingListFetcher = */new RDFFetcher(ctx, rdfURL);
-        /*parkingLocationList =*/
+        RDFFetcher rdfFetcher = new RDFFetcher(ctx, rdfURL);
+        // import 10 items not already present
+        rdfFetcher.importRDFtoAtom();
 
         SkeletonBotContextWrapper botContextWrapper = (SkeletonBotContextWrapper) getBotContextWrapper();
         // register listeners for event.impl.command events used to tell the bot to send

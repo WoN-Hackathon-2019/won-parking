@@ -1,31 +1,21 @@
 package won.bot.skeleton.api;
 
-import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import won.bot.framework.eventbot.EventListenerContext;
-import won.bot.framework.eventbot.action.BotActionUtils;
 import won.bot.framework.eventbot.action.EventBotActionUtils;
-import won.bot.framework.eventbot.event.impl.command.create.CreateAtomCommandEvent;
-import won.bot.framework.eventbot.event.impl.command.create.CreateAtomCommandFailureEvent;
-import won.bot.framework.eventbot.event.impl.command.create.CreateAtomCommandSuccessEvent;
-import won.bot.framework.eventbot.event.impl.wonmessage.FailureResponseEvent;
 import won.bot.framework.eventbot.listener.EventListener;
 import won.bot.skeleton.context.SkeletonBotContextWrapper;
-import won.bot.skeleton.impl.SkeletonBot;
 import won.protocol.message.WonMessage;
 import won.protocol.message.builder.WonMessageBuilder;
 import won.protocol.util.DefaultAtomModelWrapper;
-import won.protocol.util.WonRdfUtils;
 import won.protocol.vocabulary.WXCHAT;
 
 import java.net.URI;
-import java.util.stream.Stream;
 
 public class RDFFetcher {
     private String rdfURL;
@@ -39,14 +29,18 @@ public class RDFFetcher {
         if (ctx.getBotContextWrapper() instanceof SkeletonBotContextWrapper) {
             botContextWrapper = ((SkeletonBotContextWrapper) ctx.getBotContextWrapper());
         }
-        this.fetch();
     }
 
-    public void fetch() {
-        // String myAtomList = "myAtoms";
-
+    public Model fetch() {
         Model model = ModelFactory.createDefaultModel();
         model.read(this.rdfURL);
+        return model;
+    }
+
+    public void importRDFtoAtom() {
+        // String myAtomList = "myAtoms";
+
+        Model model = fetch();
         int i = 0;
         int limit = 10;
         StmtIterator it = model.listStatements(null, RDF.type, model.getResource("https://data.cityofnewyork.us/resource/kcdd-kkxy"));
