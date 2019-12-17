@@ -30,7 +30,7 @@ public class RDFFetcher {
     private EventListenerContext ctx;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private SkeletonBotContextWrapper botContextWrapper;
-    private static final String PARKING_LOT = "row";
+    private static final String PARKING_LOT = "result";
     private static final String getClosestParkingLotQuery;
 
     static {
