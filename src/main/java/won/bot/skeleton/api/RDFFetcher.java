@@ -135,10 +135,7 @@ public class RDFFetcher {
             ctx.getWonMessageSender().sendMessage(msg);
             //System.out.println(stmt.getSubject());
             RDFDataMgr.write(System.out,atomWrapper.copyDataset(), Lang.TRIG);
-
-
         }
-        int test = 1;
     }
 
 
