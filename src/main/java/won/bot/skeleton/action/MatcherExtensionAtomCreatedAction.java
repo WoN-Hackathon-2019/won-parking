@@ -11,6 +11,7 @@ import won.bot.framework.eventbot.event.Event;
 import won.bot.framework.eventbot.event.impl.command.connect.ConnectCommandEvent;
 import won.bot.framework.eventbot.listener.EventListener;
 import won.bot.framework.extensions.matcher.MatcherExtensionAtomCreatedEvent;
+import won.bot.skeleton.api.RDFFetcher;
 import won.bot.skeleton.context.SkeletonBotContextWrapper;
 import won.protocol.message.WonMessage;
 import won.protocol.message.builder.WonMessageBuilder;
@@ -34,9 +35,11 @@ import java.util.Set;
 public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private SkeletonBotContextWrapper botContext;
+    private final RDFFetcher rdfFetcher;
 
-    public MatcherExtensionAtomCreatedAction(EventListenerContext eventListenerContext) {
+    public MatcherExtensionAtomCreatedAction(EventListenerContext eventListenerContext, RDFFetcher rdfFetcher) {
         super(eventListenerContext);
+        this.rdfFetcher = rdfFetcher;
     }
 
     @Override protected void doRun(Event event, EventListener executingListener) throws Exception {
@@ -99,7 +102,11 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
                 //did not find a socket of that type
             }
             URI recipientSocketURI = sockets.iterator().next();
-            String parkingPosisitonWonURI = botContextWrapper.getFirstParkingPosition();
+            // String parkingPosisitonWonURI = botContextWrapper.getFirstParkingPosition();
+            String parkingPosisitonWonURI = RDFFetcher.getParkingLot(rdfFetcher.fetch());
+            // String parkingPosisitonWonURI = RDFFetcher.getParkingLotWithParams(rdfFetcher.fetch(), locationCoordinate.getLatitude(), locationCoordinate.getLongitude());
+
+
             if (parkingPosisitonWonURI == null) {
                 return;
             }

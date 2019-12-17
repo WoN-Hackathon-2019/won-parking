@@ -32,6 +32,7 @@ public class RDFFetcher {
     private SkeletonBotContextWrapper botContextWrapper;
     private static final String PARKING_LOT = "result";
     private static final String getClosestParkingLotQuery;
+    private static Model model;
 
     static {
         getClosestParkingLotQuery = loadStringFromFile("/correct/getClosestParkingLot.rq");
@@ -47,17 +48,21 @@ public class RDFFetcher {
     }
 
     public Model fetch() {
-        Model model = ModelFactory.createDefaultModel();
+        if (model != null) {
+            return model;
+        }
+        model = ModelFactory.createDefaultModel();
         model.read(this.rdfURL);
         return model;
     }
 
     public static String getParkingLot(Model payload) {
+
         if(payload != null && !payload.isEmpty()) {
           QuerySolution solution = executeQuery(getClosestParkingLotQuery, payload);
 
           if (solution != null) {
-              return solution.getLiteral(PARKING_LOT).getString();
+              return solution.getResource(PARKING_LOT).toString();
           }
         }
         return null;
