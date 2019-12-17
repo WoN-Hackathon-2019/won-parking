@@ -69,7 +69,6 @@ public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAt
         // import 10 items not already present
         rdfFetcher.importRDFtoAtom();
         Model model = rdfFetcher.fetch();
-        rdfFetcher.getParkingLot(model);
 
         SkeletonBotContextWrapper botContextWrapper = (SkeletonBotContextWrapper) getBotContextWrapper();
         // register listeners for event.impl.command events used to tell the bot to send

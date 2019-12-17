@@ -102,12 +102,30 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
                 //did not find a socket of that type
             }
             URI recipientSocketURI = sockets.iterator().next();
-            // String parkingPosisitonWonURI = botContextWrapper.getFirstParkingPosition();
-            String parkingPosisitonWonURI = RDFFetcher.getParkingLot(rdfFetcher.fetch());
+
+            String ref = RDFFetcher.getParkingLot(rdfFetcher.fetch());
+            // String ref = RDFFetcher.getParkingLotWithParams(rdfFetcher.fetch(), locationCoordinate.getLatitude(), locationCoordinate.getLongitude());
+            String parkingPosisitonWonURI;
+            if (ref == null) {
+                // fallback
+                ref = RDFFetcher.getParkingLot(rdfFetcher.fetch());
+            }
+            if (ref == null) {
+                // hard fallback to display something TODO: remove
+                parkingPosisitonWonURI = botContextWrapper.getFirstParkingPosition();
+            } else {
+                parkingPosisitonWonURI = botContextWrapper.getParkingPositionWonURI(ref);
+                if (parkingPosisitonWonURI.isEmpty()) {
+                    // hard fallback to display something TODO: remove
+                    parkingPosisitonWonURI = botContextWrapper.getFirstParkingPosition();
+                }
+            }
+
             // String parkingPosisitonWonURI = RDFFetcher.getParkingLotWithParams(rdfFetcher.fetch(), locationCoordinate.getLatitude(), locationCoordinate.getLongitude());
 
 
             if (parkingPosisitonWonURI == null) {
+                logger.error("NO PARKING POSITION FOUND!");
                 return;
             }
             URI ppWonUri = URI.create(parkingPosisitonWonURI);
