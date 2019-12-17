@@ -28,13 +28,17 @@ import won.bot.framework.extensions.matcher.MatcherExtensionAtomCreatedEvent;
 import won.bot.framework.extensions.serviceatom.ServiceAtomBehaviour;
 import won.bot.framework.extensions.serviceatom.ServiceAtomExtension;
 import won.bot.skeleton.action.MatcherExtensionAtomCreatedAction;
+import won.bot.skeleton.api.RDFFetcher;
 import won.bot.skeleton.context.SkeletonBotContextWrapper;
 
 public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAtomExtension {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String rdfURL = "https://data.cityofnewyork.us/api/views/kcdd-kkxy/rows.rdf?accessType=DOWNLOAD";
     private int registrationMatcherRetryInterval;
     private MatcherBehaviour matcherBehaviour;
     private ServiceAtomBehaviour serviceAtomBehaviour;
+
+    // private ArrayList<ParkingLocation> parkingLocationList;
 
     // bean setter, used by spring
     public void setRegistrationMatcherRetryInterval(final int registrationMatcherRetryInterval) {
@@ -60,6 +64,9 @@ public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAt
                             getBotContextWrapper().getBotName() + " does not work without a SkeletonBotContextWrapper");
         }
         EventBus bus = getEventBus();
+        /* ds: ParkingListFetcher = */new RDFFetcher(ctx, rdfURL);
+        /*parkingLocationList =*/
+
         SkeletonBotContextWrapper botContextWrapper = (SkeletonBotContextWrapper) getBotContextWrapper();
         // register listeners for event.impl.command events used to tell the bot to send
         // messages
