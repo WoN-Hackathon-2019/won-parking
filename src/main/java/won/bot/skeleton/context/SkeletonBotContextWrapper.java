@@ -32,6 +32,14 @@ public class SkeletonBotContextWrapper extends ServiceAtomEnabledBotContextWrapp
         return getParkingPositionWonURI(ref) != null;
     }
 
+    public String getFirstParkingPosition() {
+        Object[] arr = getBotContext().loadObjectMap(referenceURIMap).keySet().toArray();
+        if (arr.length == 0) {
+            return null;
+        }
+        return this.getParkingPositionWonURI((String) arr[0]);
+    }
+
     public Map<URI, Set<URI>> getConnectedSockets() {
         Map<String, List<Object>> connectedSockets = getBotContext().loadListMap(connectedSocketsMap);
         Map<URI, Set<URI>> connectedSocketsMapSet = new HashMap<>(connectedSockets.size());
