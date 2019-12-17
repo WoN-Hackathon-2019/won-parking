@@ -3,11 +3,9 @@ PREFIX dsbase:  <https://data.cityofnewyork.us/resource/>
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?row WHERE {
-  ?row a dsbase:kcdd-kkxy .
-  ?row ds:address_street_name ?asn .
-  ?row ds:address_city ?address_city .
-  ?row geo:long ?long .
-  ?row geo:lat ?lat .
+SELECT ?result WHERE {
+  ?result a dsbase:kcdd-kkxy .
+  ?result ds:longitude ?long .
+  ?result ds:latitude ?lat .
   FILTER (xsd:float(?lat) > xsd:float(30) && xsd:float(?lat) < xsd:float(50) && xsd:float(?long) > xsd:float(-83) && xsd:float(?long) < xsd:float(-63))
 }
