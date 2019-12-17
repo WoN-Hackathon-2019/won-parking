@@ -35,7 +35,7 @@ public class SkeletonBotContextWrapper extends ServiceAtomEnabledBotContextWrapp
     public String getFirstParkingPosition() {
         Object[] arr = getBotContext().loadObjectMap(referenceURIMap).keySet().toArray();
         if (arr.length == 0) {
-            return null;
+            return "";
         }
         return this.getParkingPositionWonURI((String) arr[0]);
     }

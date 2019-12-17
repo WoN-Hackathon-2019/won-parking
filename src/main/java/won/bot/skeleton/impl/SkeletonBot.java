@@ -3,6 +3,7 @@ package won.bot.skeleton.impl;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 
+import org.apache.jena.rdf.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,7 @@ public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAt
         RDFFetcher rdfFetcher = new RDFFetcher(ctx, rdfURL);
         // import 10 items not already present
         rdfFetcher.importRDFtoAtom();
+        Model model = rdfFetcher.fetch();
 
         SkeletonBotContextWrapper botContextWrapper = (SkeletonBotContextWrapper) getBotContextWrapper();
         // register listeners for event.impl.command events used to tell the bot to send
@@ -126,7 +128,7 @@ public class SkeletonBot extends EventBot implements MatcherExtension, ServiceAt
             }
         });
         // listen for the MatcherExtensionAtomCreatedEvent
-        bus.subscribe(MatcherExtensionAtomCreatedEvent.class, new MatcherExtensionAtomCreatedAction(ctx));
+        bus.subscribe(MatcherExtensionAtomCreatedEvent.class, new MatcherExtensionAtomCreatedAction(ctx, rdfFetcher));
 
         bus.subscribe(CloseFromOtherAtomEvent.class, new BaseEventBotAction(ctx) {
             @Override
