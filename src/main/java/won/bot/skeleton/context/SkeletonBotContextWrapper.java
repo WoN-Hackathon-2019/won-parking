@@ -8,10 +8,28 @@ import java.util.*;
 
 public class SkeletonBotContextWrapper extends ServiceAtomEnabledBotContextWrapper {
     private final String connectedSocketsMap;
+    private final String referenceURIMap;
 
     public SkeletonBotContextWrapper(BotContext botContext, String botName) {
         super(botContext, botName);
         this.connectedSocketsMap = botName + ":connectedSocketsMap";
+        this.referenceURIMap = botName + ":referenceURIMap";
+    }
+
+    public void addParkingPosition(String ref, URI wonURI) {
+        getBotContext().saveToObjectMap(referenceURIMap, ref, wonURI.toString());
+    }
+
+    public void removeParkingPositionByRef(String ref) {
+        getBotContext().removeFromObjectMap(referenceURIMap, ref);
+    }
+
+    public String getParkingPositionWonURI(String ref) {
+        return (String) getBotContext().loadFromObjectMap(referenceURIMap, ref);
+    }
+
+    public boolean parkingPositionExists(String ref) {
+        return getParkingPositionWonURI(ref) != null;
     }
 
     public Map<URI, Set<URI>> getConnectedSockets() {

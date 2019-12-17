@@ -16,6 +16,8 @@ import won.bot.framework.eventbot.event.impl.command.create.CreateAtomCommandFai
 import won.bot.framework.eventbot.event.impl.command.create.CreateAtomCommandSuccessEvent;
 import won.bot.framework.eventbot.event.impl.wonmessage.FailureResponseEvent;
 import won.bot.framework.eventbot.listener.EventListener;
+import won.bot.skeleton.context.SkeletonBotContextWrapper;
+import won.bot.skeleton.impl.SkeletonBot;
 import won.protocol.message.WonMessage;
 import won.protocol.message.builder.WonMessageBuilder;
 import won.protocol.util.DefaultAtomModelWrapper;
@@ -29,15 +31,20 @@ public class RDFFetcher {
     private String rdfURL;
     private EventListenerContext ctx;
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private SkeletonBotContextWrapper botContextWrapper;
 
     public RDFFetcher(EventListenerContext ctx, String rdfURL) {
         this.ctx = ctx;
         this.rdfURL = rdfURL;
+        if (ctx.getBotContextWrapper() instanceof SkeletonBotContextWrapper) {
+            botContextWrapper = ((SkeletonBotContextWrapper) ctx.getBotContextWrapper());
+        }
         this.fetch();
     }
 
     public void fetch() {
-        String myAtomList = "myAtoms";
+        // String myAtomList = "myAtoms";
+
         Model model = ModelFactory.createDefaultModel();
         model.read(this.rdfURL);
         int i = 0;
@@ -45,7 +52,6 @@ public class RDFFetcher {
         StmtIterator it = model.listStatements(null, RDF.type, model.getResource("https://data.cityofnewyork.us/resource/kcdd-kkxy"));
         while(it.hasNext())
         {
-            i++;
             if (i > limit) {
                 break;
             }
@@ -57,13 +63,16 @@ public class RDFFetcher {
             atomWrapper.addSocket("#chatSocket", WXCHAT.ChatSocketString);
             Statement stmt = it.nextStatement();
             Resource spot = stmt.getSubject();
+            if (botContextWrapper.parkingPositionExists(spot.toString()) == true) {
+                continue;
+            }
+            i++;
             Resource atomRes = atomWrapper.getAtomContentNode();
             StmtIterator it2 = spot.listProperties();
             while(it2.hasNext()) {
                 Statement stmt2 = it2.nextStatement();
                 atomRes.addProperty(stmt2.getPredicate(), stmt2.getObject());
             }
-
 
             //publish command
             WonMessage msg = WonMessageBuilder
@@ -76,24 +85,21 @@ public class RDFFetcher {
                     .build();
             msg = ctx.getWonMessageSender().prepareMessage(msg);
 
-            EventBotActionUtils.rememberInList(ctx, atomURI, myAtomList);
+            // EventBotActionUtils.rememberInList(ctx, atomURI, myAtomList);
+            botContextWrapper.addParkingPosition(spot.toString(), atomURI);
+
             EventListener successCallback = (event12) -> {
                 logger.warn("atom creation successful, new atom URI is {}", atomURI);
                 // react to success
             };
             EventListener failureCallback = (event1) -> {
                 //react to failure
-                EventBotActionUtils.removeFromList(ctx, atomURI, myAtomList);
+                botContextWrapper.removeParkingPositionByRef(String.valueOf(stmt.getSubject()));
                 logger.warn("atom creation failed for atom URI is {}", atomURI);
             };
             EventBotActionUtils.makeAndSubscribeResponseListener(msg, successCallback, failureCallback, ctx);
             logger.debug("registered listeners for response to message URI {}", msg.getMessageURI());
 
-
-/*
-            CreateAtomCommandEvent createCommand = new CreateAtomCommandEvent(atomWrapper.getDataset());
-            ctx.getEventBus().publish(createCommand);
-*/
             ctx.getWonMessageSender().sendMessage(msg);
             //System.out.println(stmt.getSubject());
             RDFDataMgr.write(System.out,atomWrapper.copyDataset(), Lang.TRIG);
