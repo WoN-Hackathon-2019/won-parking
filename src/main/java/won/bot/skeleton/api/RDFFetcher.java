@@ -32,10 +32,12 @@ public class RDFFetcher {
     private SkeletonBotContextWrapper botContextWrapper;
     private static final String PARKING_LOT = "result";
     private static final String getClosestParkingLotQuery;
-    private static Model model;
+    private static final String getClosestParkingLotQuery1;
+    private Model model;
 
     static {
         getClosestParkingLotQuery = loadStringFromFile("/correct/getClosestParkingLot.rq");
+        getClosestParkingLotQuery1 = loadStringFromFile("/correct/getClosestParkingLot1.rq");
     }
 
 
@@ -57,15 +59,30 @@ public class RDFFetcher {
     }
 
     public static String getParkingLot(Model payload) {
-
         if(payload != null && !payload.isEmpty()) {
-          QuerySolution solution = executeQuery(getClosestParkingLotQuery, payload);
+          QuerySolution solution = executeQuery(getClosestParkingLotQuery1, payload);
 
           if (solution != null) {
               return solution.getResource(PARKING_LOT).toString();
           }
         }
         return null;
+    }
+
+    public static String getParkingLotWithParams(Model payload, float myLong, float myLat) {
+      if (payload != null && !payload.isEmpty()) {
+        ParameterizedSparqlString pss = new ParameterizedSparqlString();
+        pss.setCommandText(getClosestParkingLotQuery);
+        // pss.setLiteral("myLat", myLat);
+        // pss.setLiteral("myLong", myLong);
+        QuerySolution solution = executeQuery(
+                pss.toString().replace("?myLat", "" + myLat).replace("?myLong", ""+myLong), payload);
+
+        if (solution != null) {
+            return solution.getResource(PARKING_LOT).toString();
+        }
+      }
+      return null;
     }
 
     private static QuerySolution executeQuery(String queryString, Model payload) {

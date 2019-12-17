@@ -103,8 +103,8 @@ public class MatcherExtensionAtomCreatedAction extends BaseEventBotAction {
             }
             URI recipientSocketURI = sockets.iterator().next();
 
-            String ref = RDFFetcher.getParkingLot(rdfFetcher.fetch());
-            // String ref = RDFFetcher.getParkingLotWithParams(rdfFetcher.fetch(), locationCoordinate.getLatitude(), locationCoordinate.getLongitude());
+            // String ref = RDFFetcher.getParkingLot(rdfFetcher.fetch());
+            String ref = RDFFetcher.getParkingLotWithParams(rdfFetcher.fetch(), locationCoordinate.getLatitude(), locationCoordinate.getLongitude());
             String parkingPosisitonWonURI;
             if (ref == null) {
                 // fallback
