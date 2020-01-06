@@ -51,3 +51,5 @@ Once the skeleton bot is running, you can use it as a base for implementing your
 
 Please refer to the general [Bot Readme](https://github.com/researchstudio-sat/webofneeds/blob/master/webofneeds/won-bot/README.md) for more information on Web of Needs Bot applications.
 
+## Collaboration
+ * this bot uses [EasyCLI](https://github.com/WoN-Hackathon-2019/easycli) for chat command handling 
